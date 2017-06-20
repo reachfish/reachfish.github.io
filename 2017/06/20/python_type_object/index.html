@@ -34,7 +34,7 @@
 </ol>
 <p>在python中，__metaclass__属性用于指明该类创建时使用的元类。 如果没有该属性,则使用type来创建。<br>搜索元类的顺序: 当前类 =&gt; 祖先类 =&gt; 模块 =&gt; type。</p>
 <p>可以用type创建类。</p>
-<p>概念上是<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">MyClass = MetaClass()</div><div class="line">MyObject = MyClass()</div><div class="line">``` </div><div class="line"></div><div class="line">```python </div><div class="line">type(ClassName, ParentList, AttrDict)</div></pre></td></tr></table></figure></p>
+<p>概念上是<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#概念上是</span></div><div class="line">MyClass = MetaClass()</div><div class="line">MyObject = MyClass()</div><div class="line"></div><div class="line">type(ClassName, ParentList, AttrDict)</div></pre></td></tr></table></figure></p>
 <h3 id="class"><a href="#class" class="headerlink" title="__class__"></a>__class__</h3><p>python中所有东西都是对象，并且也都是从类中生成的。例如整数对象是由类int生成的，字符串对象是由str生成的，而类是由元类生成的。<br>对象的 __class__ 属性表示生成该对象的类。 </p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">age = <span class="number">10</span> </div><div class="line"><span class="keyword">print</span> age.__class__     <span class="comment">#&lt;type 'int'&gt;</span></div><div class="line">name = <span class="string">"bob"</span> </div><div class="line"><span class="keyword">print</span> name.__class__    <span class="comment">#&lt;type 'str'&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> age.__class__.__class__    <span class="comment">#&lt;type 'type'&gt;  生成类的类，元类type</span></div><div class="line"><span class="keyword">print</span> name.__class__.__class__   <span class="comment">#&lt;type 'type'&gt;</span></div></pre></td></tr></table></figure>
 <h2 id="types-vs-objects"><a href="#types-vs-objects" class="headerlink" title="types vs objects"></a>types vs objects</h2><p>生成对象的两种方法：</p>
@@ -53,22 +53,52 @@
 <p>Object是一切类(自身除外)的父类，type是生成所有类的类。</p>
 <h3 id="对象关系图"><a href="#对象关系图" class="headerlink" title="对象关系图"></a>对象关系图</h3><p><a href="/image/types_map.png">关系图</a></p>
 <h2 id="Attributes"><a href="#Attributes" class="headerlink" title="Attributes"></a>Attributes</h2><h3 id="dict"><a href="#dict" class="headerlink" title="__dict__"></a>__dict__</h3><p>用户自定义的属性。 </p>
-<p>属性查找顺序：</p>
+<p>属性查找顺序(访问obj.attr)：</p>
 <ol>
-<li>obj.__dict__ 或者 obj中python自带的属性; </li>
-<li>obj所属类的__dict__;</li>
-<li>obj所属类的祖先的__dict__;  </li>
+<li>attr是python提供的特殊属性时，返回； </li>
+<li>在它的类 __dict__中寻找，如果找到，且是一个data descriptor，则返回 descriptor result；</li>
+<li>在该对象的 __dict__中寻找，找到返回；如果该对象也是一个类，则在它的祖先的 __dict__ 中也找。如果找到的是 descriptor， 则返回descriptor result；</li>
+<li>在它的类 __dict__中寻找，如果找到，则若是非描述符，则返回；否则应该为non-data descriptor，则返回 descriptor result;</li>
+<li>触发异常。</li>
 </ol>
+<p>总结：python内置属性 =&gt; 类__dict__中的data descriptor =&gt; 对象中的 __dict__ =&gt; 类中的 __dict__ 中的非描述符或non-data descriptor</p>
 <p>一些build in类型是没有__dict__的，如list，tuple等，所以用户设置list对象的属性时会报错。</p>
 <h2 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h2><h3 id="绑定-Bound-非绑定-UnBound"><a href="#绑定-Bound-非绑定-UnBound" class="headerlink" title="绑定(Bound)/非绑定(UnBound)"></a>绑定(Bound)/非绑定(UnBound)</h3><p>类中定义的方法，类名 + . + 方法名是非绑定， 对象 + . + 是绑定。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">pass</span>  </div><div class="line"></div><div class="line">Foo.foo()       <span class="comment">#未绑定  </span></div><div class="line">Foo().foo()     <span class="comment">#绑定，会报错</span></div></pre></td></tr></table></figure></p>
 <p>obj.f是绑定方法，cls.__dict__[“f”]是未绑定方法，可以通过 cls.__dict__[“f”].__get__(obj, cls) 来获得。</p>
 <h3 id="Descriptor"><a href="#Descriptor" class="headerlink" title="Descriptor"></a>Descriptor</h3><p>可以把带有__get__方法的object放到类的__dict__中，这些object称为descriptor。 </p>
 <p>descriptor包含三个方法：</p>
 <ol>
-<li>__get__<br>obj.attr或cls.attr(此时参数中的obj为cls本身，而参数中的cls则为None)来调用</li>
-<li>__set__<br>obj.attr = .. 时调用</li>
-<li>__del__<br>删除属性时调用</li>
+<li>__get__<br>obj.attr或cls.attr来调用</li>
+<li>__set__  (可选)<br>obj.attr = .. 时调用</li>
+<li>__delete__ (可选)<br>删除属性时调用</li>
 </ol>
+<p>Descriptor只有绑到类上时才会起作用，绑到一个非class的实例上，不会起任何作用。<br>当d为类C的描述符时，实例 c.d 访问到的都是类C中的对象，要想定义使用自己的d，只能 c.__dict__[“d”]的形式</p>
+<p>访问描述符时，类改变描述符时会生效，但实例则不会。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>__get__</th>
+<th>__set__</th>
+<th>__delete__</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实例</td>
+<td>调用</td>
+<td>调用</td>
+<td>调用</td>
+</tr>
+<tr>
+<td>类</td>
+<td>调用</td>
+<td>不调用</td>
+<td>不调用</td>
+</tr>
+</tbody>
+</table>
+<p>只包含__get__的描述符称为non-data descriptor。<br>对于data descriptor，对象无法隐藏类的描述符；类修改d = .. 后，则会把描述符替换成其他对象了，并且不会调用__delete__。<br>对于non-data descriptor，对象可以隐藏类的描述符。 </p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Desc(object):</div><div class="line">    def __get__(self, obj, cls=None):</div><div class="line">        pass </div><div class="line"></div><div class="line">    def __set__(self, obj, val):</div><div class="line">        pass</div><div class="line"></div><div class="line">    def __del__(self, obj):</div><div class="line">        pass</div></pre></td></tr></table></figure>
 <h3 id="类方法-静态方法"><a href="#类方法-静态方法" class="headerlink" title="类方法/静态方法"></a>类方法/静态方法</h3><p>类方法既可以使用类来调用，也可以使用对象来调用。类方法有两个条件</p>
 <ol>
@@ -82,4 +112,4 @@
 <li>python types and objects <a href="http://www.cafepy.com/article/python_types_and_objects/python_types_and_objects.html" target="_blank" rel="external">1</a>。</li>
 <li>python attributes and methods <a href="http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html" target="_blank" rel="external">2</a>。</li>
 </ol>
-</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://yoursite.com/2017/06/20/python_type_object/" data-id="cj4571zjd0000atsbl98iy628" class="article-share-link">分享</a><div class="tags"></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/python_type_object/">python 类、属性和方法</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2017 <a href="/." rel="nofollow">Blog.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://yoursite.com/2017/06/20/python_type_object/" data-id="cj458tv9q0000upsbyz4dm4s7" class="article-share-link">分享</a><div class="tags"></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/python_type_object/">python 类、属性和方法</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2017 <a href="/." rel="nofollow">Blog.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
