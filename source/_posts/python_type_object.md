@@ -74,11 +74,10 @@ print c._CC__name
 
 概念上是 
 ```python 
+#概念上是
 MyClass = MetaClass()
 MyObject = MyClass()
-``` 
 
-```python 
 type(ClassName, ParentList, AttrDict)
 ```
 
@@ -126,10 +125,14 @@ Object是一切类(自身除外)的父类，type是生成所有类的类。
 ### \_\_dict\_\_
 用户自定义的属性。 
 
-属性查找顺序：
-1. obj.\_\_dict\_\_ 或者 obj中python自带的属性; 
-2. obj所属类的\_\_dict\_\_;
-3. obj所属类的祖先的\_\_dict\_\_;  
+属性查找顺序(访问obj.attr)：
+1. attr是python提供的特殊属性时，返回； 
+2. 在它的类 \_\_dict\_\_中寻找，如果找到，且是一个data descriptor，则返回 descriptor result；
+3. 在该对象的 \_\_dict\_\_中寻找，找到返回；如果该对象也是一个类，则在它的祖先的 \_\_dict\_\_ 中也找。如果找到的是 descriptor， 则返回descriptor result；
+4. 在它的类 \_\_dict\_\_中寻找，如果找到，则若是非描述符，则返回；否则应该为non-data descriptor，则返回 descriptor result;
+5. 触发异常。
+
+总结：python内置属性 => 类\_\_dict\_\_中的data descriptor => 对象中的 \_\_dict\_\_ => 类中的 \_\_dict\_\_ 中的非描述符或non-data descriptor
  
 一些build in类型是没有\_\_dict\_\_的，如list，tuple等，所以用户设置list对象的属性时会报错。
 
@@ -154,11 +157,26 @@ obj.f是绑定方法，cls.\_\_dict\_\_["f"]是未绑定方法，可以通过 cl
 
 descriptor包含三个方法：
 1. \_\_get\_\_   
-obj.attr或cls.attr(此时参数中的obj为cls本身，而参数中的cls则为None)来调用
-2. \_\_set\_\_  
+obj.attr或cls.attr来调用
+2. \_\_set\_\_  (可选)
 obj.attr = .. 时调用
-3. \_\_del\_\_ 
+3. \_\_delete\_\_ (可选)
 删除属性时调用
+
+Descriptor只有绑到类上时才会起作用，绑到一个非class的实例上，不会起任何作用。
+当d为类C的描述符时，实例 c.d 访问到的都是类C中的对象，要想定义使用自己的d，只能 c.\_\_dict\_\_["d"]的形式
+
+访问描述符时，类改变描述符时会生效，但实例则不会。
+
+|   |\_\_get\_\_|\_\_set\_\_|\_\_delete\_\_| 
+|---|---|---|---|
+|实例| 调用 | 调用 | 调用 |
+|类| 调用 | 不调用|不调用|
+
+只包含\_\_get\_\_的描述符称为non-data descriptor。
+对于data descriptor，对象无法隐藏类的描述符；类修改d = .. 后，则会把描述符替换成其他对象了，并且不会调用\_\_delete\_\_。 
+对于non-data descriptor，对象可以隐藏类的描述符。 
+
     
 ```
 class Desc(object):
