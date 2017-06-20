@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: Blog
 subtitle:
 description:
-author: John Doe
-language:
+author: reachfish
+language: zh-CN
 timezone:
 
 # URL
@@ -71,3 +71,4 @@ theme: maupassant
 deploy:
   type: git
   repo: https://github.com/reachfish/reachfish.github.io.git
+  branch: master
