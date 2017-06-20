@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Blog</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2017-06-20T05:18:43.100Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>reachfish</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>python 类、属性和方法</title>
+    <link href="http://yoursite.com/2017/06/20/python_type_object/"/>
+    <id>http://yoursite.com/2017/06/20/python_type_object/</id>
+    <published>2017-06-20T05:18:43.100Z</published>
+    <updated>2017-06-20T05:18:43.100Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>调用基类的方法时，需要加上基类的类名，并且带上self参数。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span> </div><div class="line">        <span class="keyword">print</span> <span class="string">'Parent'</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span> </div><div class="line">        <span class="keyword">print</span> <span class="string">'Child'</span> </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parent_foo</span><span class="params">(self)</span>:</span> </div><div class="line">        Parent.foo(self)</div></pre></td></tr></table></figure></p>
+<h3 id="Super"><a href="#Super" class="headerlink" title="Super"></a>Super</h3><p>Super是一个类，Super(cls, obj)是根据类和其对象返回一个对象，可以通过Super来调用父类属性<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></div><div class="line">        Super(Child, self).foo()</div><div class="line">        <span class="comment">#do other things</span></div><div class="line">        <span class="keyword">pass</span></div></pre></td></tr></table></figure></p>
+<h3 id="新类旧类"><a href="#新类旧类" class="headerlink" title="新类旧类"></a>新类旧类</h3><p>从object继承的是新类，否则为旧类。python 3中所有类都为新类，隐式继承自object。  </p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>type(类)</th>
+<th>type(实例)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>旧类</td>
+<td>type ‘classobj’</td>
+<td>type ‘instance’</td>
+</tr>
+<tr>
+<td>新类</td>
+<td>type ‘type’</td>
+<td>class ‘ClassName’</td>
+</tr>
+</tbody>
+</table>
+<p>新类本身也是一个对象。</p>
+<h2 id="私有属性"><a href="#私有属性" class="headerlink" title="私有属性"></a>私有属性</h2><p><strong>__private_attrs</strong> 以双下划线开头的属性为private属性。<br><strong>_protected_attrs</strong> 以单下划线开头的属性为protected属性。</p>
+<p>外部访问私有属性时会报错，但是可以通过类名 _ClassName__var 来进行访问。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CC</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, name)</span>:</span></div><div class="line">        self.__name =  name</div><div class="line"></div><div class="line">c = CC(<span class="string">"dog"</span>)</div><div class="line"><span class="comment"># err</span></div><div class="line"><span class="comment"># print c.__name</span></div><div class="line"></div><div class="line"><span class="comment"># ok </span></div><div class="line"><span class="keyword">print</span> c._CC__name</div></pre></td></tr></table></figure></p>
+<h2 id="元类"><a href="#元类" class="headerlink" title="元类"></a>元类</h2><p>元类是用于创建类的类，一般类的元类是type。   </p>
+<p>作用：</p>
+<ol>
+<li>拦截类的创建；</li>
+<li>修改类；</li>
+<li>返回修改后的类。 </li>
+</ol>
+<p>在python中，__metaclass__属性用于指明该类创建时使用的元类。 如果没有该属性,则使用type来创建。<br>搜索元类的顺序: 当前类 =&gt; 祖先类 =&gt; 模块 =&gt; type。</p>
+<p>可以用type创建类。</p>
+<p>概念上是<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">MyClass = MetaClass()</div><div class="line">MyObject = MyClass()</div><div class="line">``` </div><div class="line"></div><div class="line">```python </div><div class="line">type(ClassName, ParentList, AttrDict)</div></pre></td></tr></table></figure></p>
+<h3 id="class"><a href="#class" class="headerlink" title="__class__"></a>__class__</h3><p>python中所有东西都是对象，并且也都是从类中生成的。例如整数对象是由类int生成的，字符串对象是由str生成的，而类是由元类生成的。<br>对象的 __class__ 属性表示生成该对象的类。 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">age = <span class="number">10</span> </div><div class="line"><span class="keyword">print</span> age.__class__     <span class="comment">#&lt;type 'int'&gt;</span></div><div class="line">name = <span class="string">"bob"</span> </div><div class="line"><span class="keyword">print</span> name.__class__    <span class="comment">#&lt;type 'str'&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> age.__class__.__class__    <span class="comment">#&lt;type 'type'&gt;  生成类的类，元类type</span></div><div class="line"><span class="keyword">print</span> name.__class__.__class__   <span class="comment">#&lt;type 'type'&gt;</span></div></pre></td></tr></table></figure>
+<h2 id="types-vs-objects"><a href="#types-vs-objects" class="headerlink" title="types vs objects"></a>types vs objects</h2><p>生成对象的两种方法：</p>
+<ol>
+<li>通过已有类继承生成新的类(__bases__);</li>
+<li>通过已有类实例化对象(__class__)；</li>
+</ol>
+<h3 id="重要准则"><a href="#重要准则" class="headerlink" title="重要准则"></a>重要准则</h3><ol>
+<li><p>Everything is an object<br>所有东西都是object。</p>
+</li>
+<li><p>Class is type is class<br>class和type的意义是一样的。</p>
+</li>
+<li><p>Type or non-type test rule<br>判断一个对象是否是一个类，判断它是否 instance of type。 </p>
+</li>
+</ol>
+<p>Object是一切类(自身除外)的父类，type是生成所有类的类。</p>
+<h3 id="对象关系图"><a href="#对象关系图" class="headerlink" title="对象关系图"></a>对象关系图</h3><p><a href="/image/types_map.png">关系图</a></p>
+<h2 id="Attributes"><a href="#Attributes" class="headerlink" title="Attributes"></a>Attributes</h2><h3 id="dict"><a href="#dict" class="headerlink" title="__dict__"></a>__dict__</h3><p>用户自定义的属性。 </p>
+<p>属性查找顺序：</p>
+<ol>
+<li>obj.__dict__ 或者 obj中python自带的属性; </li>
+<li>obj所属类的__dict__;</li>
+<li>obj所属类的祖先的__dict__;  </li>
+</ol>
+<p>一些build in类型是没有__dict__的，如list，tuple等，所以用户设置list对象的属性时会报错。</p>
+<h2 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h2><h3 id="绑定-Bound-非绑定-UnBound"><a href="#绑定-Bound-非绑定-UnBound" class="headerlink" title="绑定(Bound)/非绑定(UnBound)"></a>绑定(Bound)/非绑定(UnBound)</h3><p>类中定义的方法，类名 + . + 方法名是非绑定， 对象 + . + 是绑定。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">pass</span>  </div><div class="line"></div><div class="line">Foo.foo()       <span class="comment">#未绑定  </span></div><div class="line">Foo().foo()     <span class="comment">#绑定，会报错</span></div></pre></td></tr></table></figure></p>
+<p>obj.f是绑定方法，cls.__dict__[“f”]是未绑定方法，可以通过 cls.__dict__[“f”].__get__(obj, cls) 来获得。</p>
+<h3 id="Descriptor"><a href="#Descriptor" class="headerlink" title="Descriptor"></a>Descriptor</h3><p>可以把带有__get__方法的object放到类的__dict__中，这些object称为descriptor。 </p>
+<p>descriptor包含三个方法：</p>
+<ol>
+<li>__get__<br>obj.attr或cls.attr(此时参数中的obj为cls本身，而参数中的cls则为None)来调用</li>
+<li>__set__<br>obj.attr = .. 时调用</li>
+<li>__del__<br>删除属性时调用</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">class Desc(object):</div><div class="line">    def __get__(self, obj, cls=None):</div><div class="line">        pass </div><div class="line"></div><div class="line">    def __set__(self, obj, val):</div><div class="line">        pass</div><div class="line"></div><div class="line">    def __del__(self, obj):</div><div class="line">        pass</div></pre></td></tr></table></figure>
+<h3 id="类方法-静态方法"><a href="#类方法-静态方法" class="headerlink" title="类方法/静态方法"></a>类方法/静态方法</h3><p>类方法既可以使用类来调用，也可以使用对象来调用。类方法有两个条件</p>
+<ol>
+<li>使用classmethod描述；</li>
+<li>传入的第一个参数是cls；(注意：用self时，只能被实例调用)。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span><span class="params">(object)</span>:</span></div><div class="line"><span class="meta">    @classmethod</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(cls)</span>:</span> <span class="comment">#第一个参数只能是cls</span></div><div class="line">        <span class="keyword">pass</span></div><div class="line"></div><div class="line">Foo.foo() <span class="comment">#ok</span></div><div class="line">Foo().foo() <span class="comment">#ok</span></div></pre></td></tr></table></figure>
+<p>静态方法可以被类和对象调用，静态方法用staticmethod修饰器。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span><span class="params">(object)</span>:</span></div><div class="line"><span class="meta">    @staticmethod  </span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span> <span class="comment">#不带self和cls</span></div><div class="line">        <span class="keyword">pass</span></div><div class="line"></div><div class="line">Foo.foo() <span class="comment">#ok</span></div><div class="line">Foo().foo() <span class="comment">#ok</span></div></pre></td></tr></table></figure></p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>python types and objects <a href="http://www.cafepy.com/article/python_types_and_objects/python_types_and_objects.html" target="_blank" rel="external">1</a>。</li>
+<li>python attributes and methods <a href="http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html" target="_blank" rel="external">2</a>。</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;继承&quot;&gt;&lt;a href=&quot;#继承&quot; class=&quot;headerlink&quot; title=&quot;继承&quot;&gt;&lt;/a&gt;继承&lt;/h2&gt;&lt;p&gt;调用基类的方法时，需要加上基类的类名，并且带上self参数。&lt;br&gt;&lt;figure class=&quot;highlight python&quot;&gt;&lt;ta
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
