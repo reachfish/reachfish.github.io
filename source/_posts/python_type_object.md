@@ -177,16 +177,13 @@ Descriptor只有绑到类上时才会起作用，绑到一个非class的实例�
 对于data descriptor，对象无法隐藏类的描述符；类修改d = .. 后，则会把描述符替换成其他对象了，并且不会调用\_\_delete\_\_。 
 对于non-data descriptor，对象可以隐藏类的描述符。 
 
-    
-```
+```python
 class Desc(object):
     def __get__(self, obj, cls=None):
         pass 
-
     def __set__(self, obj, val):
         pass
-
-    def __del__(self, obj):
+    def __delete__(self, obj):
         pass
 ```
 
