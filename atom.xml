@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-06-20T09:25:36.746Z</updated>
+  <updated>2017-06-21T07:02:40.525Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,10 +17,10 @@
   
   <entry>
     <title>python 类、属性和方法</title>
-    <link href="http://yoursite.com/2017/06/20/python_type_object/"/>
-    <id>http://yoursite.com/2017/06/20/python_type_object/</id>
-    <published>2017-06-20T09:25:36.753Z</published>
-    <updated>2017-06-20T09:25:36.746Z</updated>
+    <link href="http://yoursite.com/2017/06/21/python_type_object/"/>
+    <id>http://yoursite.com/2017/06/21/python_type_object/</id>
+    <published>2017-06-21T07:02:40.529Z</published>
+    <updated>2017-06-21T07:02:40.525Z</updated>
     
     <content type="html"><![CDATA[<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>调用基类的方法时，需要加上基类的类名，并且带上self参数。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span> </div><div class="line">        <span class="keyword">print</span> <span class="string">'Parent'</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span> </div><div class="line">        <span class="keyword">print</span> <span class="string">'Child'</span> </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parent_foo</span><span class="params">(self)</span>:</span> </div><div class="line">        Parent.foo(self)</div></pre></td></tr></table></figure></p>
 <h3 id="Super"><a href="#Super" class="headerlink" title="Super"></a>Super</h3><p>Super是一个类，Super(cls, obj)是根据类和其对象返回一个对象，可以通过Super来调用父类属性<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></div><div class="line">        Super(Child, self).foo()</div><div class="line">        <span class="comment">#do other things</span></div><div class="line">        <span class="keyword">pass</span></div></pre></td></tr></table></figure></p>
@@ -141,6 +141,34 @@
     <summary type="html">
     
       &lt;h2 id=&quot;继承&quot;&gt;&lt;a href=&quot;#继承&quot; class=&quot;headerlink&quot; title=&quot;继承&quot;&gt;&lt;/a&gt;继承&lt;/h2&gt;&lt;p&gt;调用基类的方法时，需要加上基类的类名，并且带上self参数。&lt;br&gt;&lt;figure class=&quot;highlight python&quot;&gt;&lt;ta
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>python小知识</title>
+    <link href="http://yoursite.com/2017/06/21/python_tips/"/>
+    <id>http://yoursite.com/2017/06/21/python_tips/</id>
+    <published>2017-06-21T07:02:33.525Z</published>
+    <updated>2017-06-21T07:02:33.522Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="魔法方法"><a href="#魔法方法" class="headerlink" title="魔法方法"></a>魔法方法</h1><h2 id="构造和析构函数"><a href="#构造和析构函数" class="headerlink" title="构造和析构函数"></a>构造和析构函数</h2><p>__new__是构造函数，在__init__函数之前调用，只使用参数cls，其余参数传给__init__。</p>
+<p>__del__是析构函数，并不是语句del x的实现。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileObject</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, filepath)</span>:</span></div><div class="line">        self.file = open(filepath, <span class="string">'r'</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></div><div class="line">        self.file.close()</div><div class="line">        <span class="keyword">del</span> self.file</div></pre></td></tr></table></figure>
+<h2 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h2><p>__getattr__ 当用户试图访问不存在的属性时，会被调用。<br>__setattr__ 当用户试图设置属性时，不管改属性是否存在，会被调用。<br>__delattr__ 当用户试图删除属性时，不管改属性是否存在，会被调用。</p>
+<h2 id="自定义序列"><a href="#自定义序列" class="headerlink" title="自定义序列"></a>自定义序列</h2><ol>
+<li>不可变容器<br>需要实现 __len__ 和__getitem__ 方法。</li>
+<li>可变容器<br>除了1，还要实现 __setitem__ 和 __delitem__ 方法。</li>
+</ol>
+<p>为了使容器支持迭代，还需要实现__iter__接口。</p>
+<h2 id="上下文管理器"><a href="#上下文管理器" class="headerlink" title="上下文管理器"></a>上下文管理器</h2><p>with .. as xx: 做清理时使用，<br>需要定义 __enter__(self) 和 __exit__(self, exception_type, exception_value, traceback)。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;魔法方法&quot;&gt;&lt;a href=&quot;#魔法方法&quot; class=&quot;headerlink&quot; title=&quot;魔法方法&quot;&gt;&lt;/a&gt;魔法方法&lt;/h1&gt;&lt;h2 id=&quot;构造和析构函数&quot;&gt;&lt;a href=&quot;#构造和析构函数&quot; class=&quot;headerlink&quot; title=&quot;构造和
     
     </summary>
     
