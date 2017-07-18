@@ -252,13 +252,13 @@ int operator++(int){
 ```c
 template<typename C>
 void func(const C& c){
-	C::iterator it1(c.begin());  //err, 编译遇到C::iterator时，并会假设它为一个类型，只有加上typename声明它是一个类型时才可以使用；
+	C::iterator it1(c.begin());  //err, 编译遇到C::iterator时，并不会假设它为一个类型，只有加上typename声明它是一个类型时才可以使用；
 
 	typename C::iterator it2(c.begin()); //ok
 }
 ```
 
-编译器遇到一个未知类型时，并会假设它就是一个类型，需要显式使用typename告知编译器：这是一个类型。
+编译器遇到一个未知类型时，并不会假设它就是一个类型，需要显式使用typename告知编译器：这是一个类型。
 
 ### 类的const static 成员初始化
 
@@ -479,7 +479,7 @@ class A final{
 
 * __map__
 
-使用平衡二叉树实现，查找某个数时间为log(n)，插入一个元素时需要重新调整为一棵二叉树，对于未指明位置复杂度为log(n)，指明位置时的平摊复杂度为O(n)。
+使用平衡二叉树实现，查找某个数时间为log(n)，插入一个元素时需要重新调整为一棵二叉树，对于未指明位置复杂度为log(n)，指明位置时的平摊复杂度为O(1)。
 
 * __vector__
 
