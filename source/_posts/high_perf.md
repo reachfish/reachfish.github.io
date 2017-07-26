@@ -14,12 +14,15 @@
 使用系统性能测量工具进行性能测量，如Oprofile, dtrace, ktrace。
 
 # The C10k Problem
+
 表示的是Client 10k 问题。
+
 IO策略:
 1. 处理单线程中的多IO调用
 考虑使用多线程/多进程。
 使用非阻塞IO(只对网络IO适用，对disk IO不适用);
 使用异步IO(对网络IO和disk IO都适用)。
+
 2. 如何处理每个client
 1)每个进程处理一个用户；
 2)一个OS-level线程处理多个client，每个client又可以被控制：
@@ -34,6 +37,7 @@ IO策略:
 
 
 ## Four Pool Performance 
+
 1. Data copies
 2. Context switches
 3. Memory allocation 
@@ -42,12 +46,15 @@ IO策略:
 ## Data copies
 
 ## 补充说明
+
 * os-level thread vs user-level thread 
+
 os-level thread 指的是操作系统本身提供的，很多语言都支持，如c中通过pthread_create的就是os-level thread，开发人员需要100%负责问题的产生，在没加锁的情况下，即使是native data structure(如dict等)都可能会出问题。
 
 green thread 则是由编程语言本身来管理的，如c中的coroutine和go中的goroutine，这种thread只存在于编程语言中，不存在OS中。green thread编程通常比较简单，但是不能利用多核。通常的方式是开一个os level thread，然后在上面允许很多green thread。
 
 ----
+
 ## References
 
 1. High-Performance Request-Handling Programs [1]。
