@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Linux编程学习 | Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/6.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Linux编程学习</h1><a id="logo" href="/.">Blog</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Linux编程学习</h1><div class="post-meta">Jul 25, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><div class="post-content"><h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><h3 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h3><ul>
+<li>open</li>
+</ul>
+<p>open 返回的是一个文件描述符。文件描述符起到的是一个索引的作用，进程通过PCB中的文件描述符表找到该fd所指向的文件指针。</p>
+<ul>
+<li>fopen</li>
+</ul>
+<p>流(如fopen) 返回的则是一个FILE结构指针，FILE结构包含有文件描述符fd，FILE结构是对fd直接操作的系统调用的封装，优点是带有IO缓存。</p>
+<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><ul>
+<li>netstat</li>
+</ul>
+<p>输出分为:1)Active Internet connections:有源TCP连接。2)Active UNIX domain sockets，称为有源Unix域套接口(和网络套接字一样，但是只能用于本机通信，性能可以提高一倍)。</p>
+<ul>
+<li>tcpdump</li>
+</ul>
+<p>截获通过本机网络接口的数据，用以分析。</p>
+<ul>
+<li>ipcs(ipc show)</li>
+</ul>
+<p>ipcs：检查系统上共享内存、消息队列、信号量的分配。</p>
+<h3 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h3><p>进程的状态：</p>
+<ul>
+<li>可运行：正在运行或者准备运行</li>
+<li>等待：等待某个事件或等待资源</li>
+<li>暂停：一般是收到某些信号，如SIGSTOP</li>
+<li>僵死状态：进程已经结束，但父进程没有执行wait系统调用</li>
+</ul>
+<p>进程间的通信有：基于Unix的IPC，如信号，管道Pipe；和基于System V/Posix中的信号量，消息队列和共享内存。</p>
+<p>子进程的task_struct中的很多地方都是拷贝父进程的task_struct。</p>
+<p>除了内核进程，每个进程都有自己的虚拟空间，用mm来记录。</p>
+<h3 id="进程间的通信-IPC"><a href="#进程间的通信-IPC" class="headerlink" title="进程间的通信 IPC"></a>进程间的通信 IPC</h3><p>进程间的通信包含同步和互斥两种概念。同步是指进程间相互协调，按顺序处理任务，如生产者-消费者问题。互斥则是指某个资源一次只能被一个进程访问。</p>
+<ul>
+<li>互斥</li>
+</ul>
+<p>临界资源：只能被一个进程独占的资源，如打印机，硬盘或内存中被多个进程中的共享数据。<br>临界区：访问临界资源的代码。</p>
+<p>实现临界资源的访问：<br>1.硬件方式。因为需要中断才能进行切换，所以可以使用关中断的方式避免进程间的切换，让一个进程执行完临界区代码后再开中断。<br>2.软件方式。使用信号量的PV操作。</p>
+<ul>
+<li>信号</li>
+</ul>
+<p>使用信号值signo和信号处理器结构sigaction进行处理的。</p>
+<p>关键函数：<br>sigaction, sigaddset, sigdelset</p>
+<ul>
+<li>信号量</li>
+</ul>
+<p>使用信号量结构 sem_t 来进行PV操作的。</p>
+<ul>
+<li>消息队列 </li>
+</ul>
+<p>进程间通过消息来进行通信。</p>
+<p>关键字<br>msgget, msgsnd, msgrcv</p>
+<ul>
+<li>共享内存</li>
+</ul>
+<h3 id="进程间通信、线程间通信"><a href="#进程间通信、线程间通信" class="headerlink" title="进程间通信、线程间通信"></a>进程间通信、线程间通信</h3><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>管道</td>
+<td>y</td>
+<td></td>
+</tr>
+<tr>
+<td>信号</td>
+<td>y</td>
+<td></td>
+</tr>
+<tr>
+<td>信号量</td>
+<td>y</td>
+<td>y</td>
+</tr>
+<tr>
+<td>共享内存</td>
+<td>y</td>
+<td>y</td>
+</tr>
+<tr>
+<td>消息队列</td>
+<td>y</td>
+<td></td>
+</tr>
+<tr>
+<td>临界区</td>
+<td></td>
+<td>y</td>
+</tr>
+<tr>
+<td>事件</td>
+<td></td>
+<td>y</td>
+</tr>
+<tr>
+<td>套接字</td>
+<td>y</td>
+</tr>
+</tbody>
+</table>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://yoursite.com/2017/07/25/linux_prog/" data-id="cj5wjc2d80002mbsb24bppvji" class="article-share-link">分享</a><div class="tags"></div><div class="post-nav"><a href="/2017/07/26/c_note/" class="pre">C++知识点学习</a><a href="/2017/07/18/high_perf/" class="next">高性能优化</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/03/libevent_read1/">libevent源码阅读1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/26/c_note/">C++知识点学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/linux_prog/">Linux编程学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/18/high_perf/">高性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/17/tcp_udp/">网络编程学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/scala_base/">scala基本学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/python_tips/">python小知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/python_type_object/">python 类、属性和方法</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2017 <a href="/." rel="nofollow">Blog.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

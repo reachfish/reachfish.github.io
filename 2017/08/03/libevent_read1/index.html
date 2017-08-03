@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>libevent源码阅读1 | Blog</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/6.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">libevent源码阅读1</h1><a id="logo" href="/.">Blog</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">libevent源码阅读1</h1><div class="post-meta">Aug 3, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span></div><div class="post-content"><p>[TOC]</p>
+<h3 id="状态转换"><a href="#状态转换" class="headerlink" title="状态转换"></a>状态转换</h3><p>EVCON_DISCONNECTED(重置 evhttp_connection_reset 或重连开始时 evhttp_connection_retry)</p>
+<p>EVCON_CONNECTING(连接 evhttp_connection_connect)</p>
+<p>EVCON_IDLE(在连接成功后 evhttp_connectioncb, 或者在处理一个出request成功后)</p>
+<p>EVCON_WRITING(在连接成功后，evhttp_request_dispatch开始处理request)</p>
+<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><ul>
+<li>evhttp_connection_connect(struct evhttp_connection *evcon)</li>
+</ul>
+<p>建立连接</p>
+<p>先重置自己: evhttp_connection_reset(把连接状态设置为 EVCON_DISCONNECTED)<br>修改 flag: flag |= EVHTTP_CON_OUTGOING</p>
+<p>使用套接字进行连接：bind_socket, socket_connect(socket得到的fd设置为非阻塞的，这里也是非阻塞connect, 并返回成功与否)</p>
+<p>添加事件：</p>
+<ol>
+<li>EV_WRITE的回调函数: evhttp_connectioncb(通过connect的socket，当连接成功时，其事件的状态为可写的)</li>
+<li>增加超时事件：HTTP_CONNECT_TIMEOUT</li>
+</ol>
+<p>修改连接状态：EVCON_CONNECTING</p>
+<ul>
+<li>evhttp_connectioncb(int fd, short what, void* arg)</li>
+</ul>
+<p>连接完成或连接超时，判断：</p>
+<ol>
+<li>连接已完成，清零retry_cnt，状态变为 EVCON_IDLE，并开始处理request队列(evhttp_request_dispatch)。</li>
+<li>超时或连接未完成，若没有超出最大重试次数，则2^retry_cnt秒后尝试重新连接(evhttp_connection_retry)，否则重置con，并把它的request队列中的挨个删除并执行回调函数。</li>
+</ol>
+<ul>
+<li>evhttp_connection_retry(struct evhttp_connection* evcon)</li>
+</ul>
+<p>状态标为EVCON_DISCONNECTED，并且重来 evhttp_connection_connect</p>
+<ul>
+<li>evhttp_request_dispatch(struct evhttp_connection* evcon)</li>
+</ul>
+<p>先删除可能的close event: evhttp_connection_stop_detectclose，注意：close_ev 会重置该connection的。</p>
+<p>状态变为EVCON_WRITING </p>
+<p>生成 header: evhttp_make_header</p>
+<p>开始写buffer: evhttp_write_buffer, 写完成后，回调 evhttp_write_connectioncb</p>
+<ul>
+<li>evhttp_make_header(struct evhttp_connection <em> evcon, struct evhttp_request </em> req)</li>
+</ul>
+<p>如果是request，则evhttp_make_header_request: Method + Uri + HTTP + version + …<br>否则是response，则evhttp_make_header_response: HTTP + version + status + …</p>
+<ul>
+<li>evhttp_write_buffer(<em>evcon, cb, </em>arg)</li>
+</ul>
+<p>evhttp_write + HTTP_WRITE_TIMEOUT 超时</p>
+<p>在 evhttp_write(fd, what, *arg)中<br>如果是写超时，则会触发 evhttp_connection_fail(evcon, HTTP_WRITE_TIMEOUT)<br>否则把evcon-&gt;output_buffer中的数据写到fd中，并且调用cb回调。</p>
+<ul>
+<li>evhttp_connection_done(*evcon)</li>
+</ul>
+<p>如果是入连接，说明刚刚处理一个request，如果是出连接，说明刚刚处理一个response。</p>
+<ol>
+<li>如果是出连接，说明刚刚处理一个response </li>
+</ol>
+<p>清掉该req， evcon状态变为EVCON_IDLE<br>如果后面还有request，若当前仍连接，则直接 evhttp_request_dispatch，否则再次连接 evhttp_connection_connect。</p>
+<p>如果该连接是persistent的，则不能关闭该连接，并且开启close检测：evhttp_connection_start_detectclose。</p>
+<p>执行回调函数。</p>
+<ol>
+<li>如果是入连接，说明刚处理完一个request, 把状态变为 EVCON_WRITIN，接着执行回调函数。</li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://yoursite.com/2017/08/03/libevent_read1/" data-id="cj5wjc2cg0000mbsbpnzfgjcx" class="article-share-link">分享</a><div class="tags"></div><div class="post-nav"><a href="/2017/07/26/c_note/" class="next">C++知识点学习</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/03/libevent_read1/">libevent源码阅读1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/26/c_note/">C++知识点学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/linux_prog/">Linux编程学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/18/high_perf/">高性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/17/tcp_udp/">网络编程学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/scala_base/">scala基本学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/python_tips/">python小知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/python_type_object/">python 类、属性和方法</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2017 <a href="/." rel="nofollow">Blog.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
