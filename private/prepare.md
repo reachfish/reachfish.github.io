@@ -1,18 +1,22 @@
 
 ## https回调函数
 
+```c
 脚本逻辑
 https.request(url, callback)
-\-\-\-\-\-\-\- 
+------- 
 引擎
 read_cb:把数据读出来
 error_cb:调用callback
-\-\-\-\-\-\-\- 
-libevent: bufferevent_readcb
-evbuffer_read => read = 0(关闭),小于0 error_cb(fd, what=EVBUFFER_EOF|EVBUFFER_ERROR)，>0时，read_cb
-\-\-\-\-\-\-\- EPOLLIN | EPOLLHUP | EPOLLERR => active_event
+------- 
+libevent: 
+bufferevent_readcb
+evbuffer_read => read = 0(关闭),<0 error_cb(fd, what=EVBUFFER_EOF|EVBUFFER_ERROR)，>0时，read_cb
+------- 
 epoll:  EPOLLIN, EPOLLOUT, EPOLLHUP, EPOLLERR
-\-\-\-\-\-\-\-
+EPOLLIN | EPOLLHUP | EPOLLERR => active_event
+-------
+```
 
 ## http处理
 
