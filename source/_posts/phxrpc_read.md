@@ -7,7 +7,7 @@ date: 2017/8/11 09:00:00
 
 phxrpc是微信开源的rpc框架。
 
-# 类
+# rpc框架
 
 ## rpc/http_caller
 
@@ -277,3 +277,301 @@ HshaServer包含:
     void break_out();
 ```
 
+# network框架
+
+## 协程实现 
+
+数据结构
+
+```c
+typedef struct ucontext {  
+	struct ucontext *uc_link;   //当前上下文终止时，将会恢复的上下文
+	sigset_t         uc_sigmask; //该上下文中阻塞信号的信号 
+	stack_t          uc_stack;   //该上下文使用的栈 
+	mcontext_t       uc_mcontext; //特定的机器表示，包括线程使用的特定寄存器 
+	...  
+} ucontext_t;
+```
+
+### int getcontext(ucontext_t *ucp);
+
+将当前上下文保存到 ucp 中。
+
+### int setcontext(const ucontext_t *ucp);
+
+切换到ucp表示的上下文中
+1. 如果ucp是getcontext取得的，则会继续继续这个调用
+2. 如果ucp是是通过调用makecontext取得,程序会调用makecontext函数的第二个参数指向的函数，如果func函数返回,则恢复makecontext第一个参数指向的上下文第一个参数指向的上下文context_t中指向的uc_link. 如果uc_link为NULL,则线程退出。
+
+### void makecontext(ucontext_t *ucp, void (*func)(), int argc, ...);
+
+makecontext修改通过getcontext取得的上下文ucp(这意味着调用makecontext前必须先调用getcontext)。然后给该上下文指定一个栈空间ucp->stack，设置后继的上下文ucp->uc_link.
+
+当上下文通过setcontext或者swapcontext激活后，执行func函数，argc为func的参数个数，后面是func的参数序列。当func执行返回后，继承的上下文被激活，如果继承上下文为NULL时，线程退出。
+
+### int swapcontext(ucontext_t *oucp, ucontext_t *ucp);
+
+保存当前上下文到oucp结构体中，然后激活upc上下文。 
+
+## 利用 ucontext 实现的一个简单协程
+
+```c
+scheduler{
+	ucontext_t main;
+	vector<co_t> vco;
+};
+
+//创建一个co结构，设置其栈，其后继协程uc_link，设置其入口函数makecontext
+co_create(scheduler, func, arg)
+
+//swapcontext(&main, co)
+co_resume(co)
+
+//swapcontext(co, &main)
+co_yield(co)
+```
+
+## network/uthread_context_base
+
+### UThreadContext
+
+协程context
+
+代码 
+
+```c
+    static ContextCreateFunc_t context_create_func_;
+
+	//使用工厂模式
+	//使用函数 context_create_func_ 来创建context
+    static UThreadContext * Create(size_t stack_size, 
+            UThreadFunc_t func, void * args, 
+            UThreadDoneCallback_t callback, const bool need_stack_protect);
+    static void SetContextCreateFunc(ContextCreateFunc_t context_create_func);
+    static ContextCreateFunc_t GetContextCreateFunc();
+
+    virtual void Make(UThreadFunc_t func, void * args) = 0;
+    virtual bool Resume() = 0;
+    virtual bool Yield() = 0;
+```
+
+## network/uthread_context_system
+
+### UThreadContextSystem 
+
+从UThreadContext中继承
+
+代码 
+
+```c
+    ucontext_t context_;
+    UThreadFunc_t func_;
+    void * args_;
+    UThreadStackMemory stack_;   //自己维护一个栈
+    UThreadDoneCallback_t callback_;
+
+
+	//工厂模式
+	//生成一个实例
+    static UThreadContext * DoCreate(size_t stack_size, 
+            UThreadFunc_t func, void * args, UThreadDoneCallback_t callback,
+            const bool need_stack_protect);
+
+	//makecontext -> (func -> UThreadFuncWrapper)
+    void Make(UThreadFunc_t func, void * args) override;
+    bool Resume() override;  //swapcontext(main, context)
+    bool Yield() override;   //swapcontext(context, main)
+
+    ucontext_t * GetMainContext();   //使用静态变量保存一个 main context
+
+	//wrap用户自定义的函数，
+    static void UThreadFuncWrapper(uint32_t low32, uint32_t high32);  
+```
+
+## network/uthread_epoll
+
+### EpollNotifier
+
+结构 
+
+```c
+    UThreadEpollScheduler * scheduler_;
+    int pipe_fds_[2];  //用于通知scheduler，通知时往[1]写"a"，scheduler_侦听[0]，将会触发读事件
+
+	//scheduler_->AddTask( this->Fun )
+    void Run();
+
+
+	//while(true){
+	//  UThreadPoll
+	//} 
+	void Func();
+
+	//想管道中写a，触发读通知
+    void Notify();
+```
+
+### UThreadEpollScheduler
+
+结构 
+
+```c
+    UThreadRuntime runtime_;
+    int max_task_;  //最大任务个数
+    TaskQueue todo_list_;
+    int epoll_fd_;   //epoll_create返回的结构
+
+    Timer timer_;
+    bool closed_;
+    bool run_forever_;
+
+    UThreadActiveSocket_t active_socket_func_;
+    UThreadHandlerAcceptedFdFunc_t handler_accepted_fd_func_;
+    UThreadHandlerNewRequest_t handler_new_request_func_;
+
+    int epoll_wait_events_; //在统计1s过程中保存的事件个数
+    int epoll_wait_events_per_second_; //每秒处理的事件个数
+    uint64_t epoll_wait_events_last_cal_time_; //更新每秒事件个数的时间
+
+    EpollNotifier epoll_wake_up_;
+
+
+	//获取static的静态单例
+    static UThreadEpollScheduler * Instance();
+
+	//runtime_未完成的任务 + todo_list_ 的个数少于 max_task_
+    bool IsTaskFull();
+
+	//放到todo_list_中
+    void AddTask(UThreadFunc_t func, void * args);
+
+    UThreadSocket_t * CreateSocket(int fd, int socket_timeout_ms = 5000, 
+            int connect_timeout_ms = 200, bool no_delay = true);
+
+	//active_socket_func_
+    void SetActiveSocketFunc(UThreadActiveSocket_t active_socket_func);
+
+	//handler_accepted_fd_func_
+    void SetHandlerAcceptedFdFunc(UThreadHandlerAcceptedFdFunc_t handler_accepted_fd_func);
+
+	//handler_new_request_func_
+    void SetHandlerNewRequestFunc(UThreadHandlerNewRequest_t handler_new_request_func);
+
+	//runtime_.yield()
+    bool YieldTask();
+
+	//ConsumeTodoList
+	//while(run_forever_ || runtime_ 的任务未处理完之前){
+	// epoll_wait
+	// runtime_ 恢复协程
+	// 继续ConsumeTodoList
+	//}
+    bool Run();
+
+	//执行自己的Run 和 NotifyEpoll 的Run
+    void RunForever();
+
+    void Close();
+    
+    void NotifyEpoll();
+
+	//runtime_.GetCurrUThread()
+    int GetCurrUThread();
+
+	//给该socket添加超时
+    void AddTimer(UThreadSocket_t * socket, int timeout_ms);
+    void RemoveTimer(const size_t timer_id);
+
+	//runtime_恢复timeout的协程
+    void DealwithTimeout(int & next_timeout);
+
+	//runtime_ 创建、resume todo_list_ 中所有的任务
+    void ConsumeTodoList();
+
+	//runtime_ resume socketlist 中所有的任务
+    void ResumeAll(int flag);
+
+	//统计每秒的事件个数
+    void StatEpollwaitEvents(const int event_count);
+```
+
+### int UThreadPoll(UThreadSocket_t & socket, int events, int * revents, int timeout_ms) 
+
+socket对应的协程添加event事件和timeout超时，接着协程被挂起。
+
+### int UThreadPoll(UThreadSocket_t * list[], int count, int timeout_ms) 
+
+socketlist对应的协程添加event和timeout事件，接着协程被挂起
+
+### int UThreadConnect(UThreadSocket_t & socket, const struct sockaddr *addr, socklen_t addrlen) 
+
+socket建立连接
+
+### int UThreadAccept(UThreadSocket_t & socket, struct sockaddr *addr, socklen_t *addrlen) 
+
+socket accept
+
+
+## network/uthread_runtime
+
+### UThreadRuntime
+
+结构体中
+
+```c
+    struct ContextSlot {
+        ContextSlot() {
+            context = nullptr;
+            next_done_item = -1;
+        }
+        UThreadContext * context;
+        int next_done_item;  //已完成任务通过这个字段构成一个已完成任务协程链（空闲协程链）
+        int status; //创建时为 UTHREAD_SUSPEND，完成任务时为UTHREAD_DONE, resume协程时为UTHREAD_RUNNING
+    };
+
+    size_t stack_size_;
+    std::vector<ContextSlot> context_list_;   //协程数组中的上下文会重复使用
+    int first_done_item_;  //空闲协程，通过 next_done_item 来组成一个空闲协程链
+    int current_uthread_;  //当前运行的协程下标
+    int unfinished_item_count_;
+    bool need_stack_protect_;
+
+	//如果context_list_有已经完成任务的协程，则把任务分给它，否则创建新的协程，并加入到context_list_中
+    int Create(UThreadFunc_t func, void * args);
+
+	//current_uthread_
+    int GetCurrUThread();
+    bool Yield();
+    bool Resume(size_t index);  //恢复协程
+
+	//判断 unfinished_item_count_ 是否为0
+    bool IsAllDone();
+    int GetUnfinishedItemCount() const;
+
+	//协程完成的回调，主要是协程标记为空闲，并且未完成任务数-1
+    void UThreadDoneCallback();
+```
+
+## network/timer
+
+超时任务，使用堆来维护
+
+# http
+
+## http/http_proto
+
+### HttpProto
+
+http request/response 解析。 类似libevent中http的解析，包括解析头部、body等。
+
+## http/http_msg
+
+http消息，基类是HttpMessage，派生出HttpRequest和HttpResponse。
+
+## http/http_dispatcher
+
+貌似没调用到的地方。
+
+## http/http_client
+
+HttpClient实现GET和POST方法。调用HttpProto中的SendReq，然后对Response再调用HttpProto进行解析。 
