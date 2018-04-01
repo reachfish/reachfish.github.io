@@ -239,8 +239,8 @@
     <title>libevent源码阅读1</title>
     <link href="http://yoursite.com/2017/08/04/libevent_read1/"/>
     <id>http://yoursite.com/2017/08/04/libevent_read1/</id>
-    <published>2017-08-04T04:28:26.802Z</published>
-    <updated>2017-08-04T04:28:26.799Z</updated>
+    <published>2017-08-04T01:00:00.000Z</published>
+    <updated>2017-09-12T12:41:23.137Z</updated>
     
     <content type="html"><![CDATA[<h2 id="状态转换"><a href="#状态转换" class="headerlink" title="状态转换"></a>状态转换</h2><h3 id="EVCON-DISCONNECTED"><a href="#EVCON-DISCONNECTED" class="headerlink" title="EVCON_DISCONNECTED"></a>EVCON_DISCONNECTED</h3><ul>
 <li>创建连接时，evhttp_connection_new</li>
@@ -388,7 +388,7 @@
     <link href="http://yoursite.com/2017/07/26/c_note/"/>
     <id>http://yoursite.com/2017/07/26/c_note/</id>
     <published>2017-07-26T01:00:00.000Z</published>
-    <updated>2017-08-27T08:39:10.181Z</updated>
+    <updated>2017-09-12T12:45:55.963Z</updated>
     
     <content type="html"><![CDATA[<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="内联函数"><a href="#内联函数" class="headerlink" title="内联函数"></a>内联函数</h3><p>内联函数需要在.h中定义，一旦内联函数发生修改，所有包含其头文件的文件都需要编译。<br>在类中定义的函数自动成为内敛函数。</p>
 <h3 id="重载函数"><a href="#重载函数" class="headerlink" title="重载函数"></a>重载函数</h3><p>非指针、非引用的const形参和非const形参是等价的，所以const和非const的函数不是重载，会报错。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">f1</span><span class="params">(<span class="keyword">const</span> A)</span></span></div><div class="line"><span class="keyword">int</span> <span class="title">f1</span><span class="params">(A)</span>      <span class="comment">//error,重定义</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> <span class="title">f2</span><span class="params">(<span class="keyword">const</span> A&amp;)</span></div><div class="line"><span class="keyword">int</span> <span class="title">f2</span><span class="params">(A&amp;)</span>     <span class="comment">//ok,是重载</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> <span class="title">f3</span><span class="params">(<span class="keyword">const</span> A*)</span></div><div class="line"><span class="keyword">int</span> <span class="title">f3</span><span class="params">(A* )</span>    <span class="comment">//ok, 是重载</span></div></pre></td></tr></table></figure></p>
@@ -526,6 +526,10 @@
 </ul>
 <p>使用平衡二叉树实现，查找某个数时间为log(n)，插入一个元素时需要重新调整为一棵二叉树，对于未指明位置复杂度为log(n)，指明位置时的平摊复杂度为O(1)。</p>
 <ul>
+<li><strong>unordered_map</strong></li>
+</ul>
+<p>使用哈希表来实现</p>
+<ul>
 <li><strong>vector</strong></li>
 </ul>
 <p>在堆中分配内存,元素连续存放,有保留内存,如果减少大小后，内存也不会释放.如果新值&gt;当前大小时才会再分配内存。</p>
@@ -580,8 +584,8 @@
     <title>Linux编程学习</title>
     <link href="http://yoursite.com/2017/07/25/linux_prog/"/>
     <id>http://yoursite.com/2017/07/25/linux_prog/</id>
-    <published>2017-07-25T12:06:28.798Z</published>
-    <updated>2017-07-25T12:06:28.795Z</updated>
+    <published>2017-07-25T01:00:00.000Z</published>
+    <updated>2017-09-12T12:42:02.439Z</updated>
     
     <content type="html"><![CDATA[<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><h3 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h3><ul>
 <li>open</li>
@@ -787,9 +791,10 @@
     <link href="http://yoursite.com/2017/07/17/tcp_udp/"/>
     <id>http://yoursite.com/2017/07/17/tcp_udp/</id>
     <published>2017-07-17T01:00:00.000Z</published>
-    <updated>2017-08-27T08:40:24.308Z</updated>
+    <updated>2017-09-25T03:57:37.296Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h1><p>进程的每个操作都正好产生一个UDP数据报，并组装成一份待发送的IP数据报。<br>这与面向字符流的协议不同，如TCP，应用程序产生的全体数据与真正发送的单个IP数据报可能没有什么联系。<br>UDP不保证数据报能到达目的地。</p>
+    <content type="html"><![CDATA[<h1 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h1><p>Ethernet frame: 46-1500B</p>
+<h1 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h1><p>进程的每个操作都正好产生一个UDP数据报，并组装成一份待发送的IP数据报。<br>这与面向字符流的协议不同，如TCP，应用程序产生的全体数据与真正发送的单个IP数据报可能没有什么联系。<br>UDP不保证数据报能到达目的地。</p>
 <p>服务器可以用同一个UDP套接字给多个不同的客户接受数据报，每个客户一个数据报。<br>UDP也可以是全双工的。</p>
 <h1 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h1><p>TCP提供的是一种面向连接的、可靠的字节流服务。<br>应用数据被分割成TCP认为最适合发送的的数据块。这和UDP完全不同，应用程序产生的数据报长度将保持不变。</p>
 <p>一个端口地址和一个端口称为一个插口socket。插口对socketpair(包含客户端IP和端口，服务端IP和端口)唯一确定一个TCP连接的双方。</p>
@@ -861,7 +866,8 @@
     
     <summary type="html">
     
-      &lt;h1 id=&quot;UDP&quot;&gt;&lt;a href=&quot;#UDP&quot; class=&quot;headerlink&quot; title=&quot;UDP&quot;&gt;&lt;/a&gt;UDP&lt;/h1&gt;&lt;p&gt;进程的每个操作都正好产生一个UDP数据报，并组装成一份待发送的IP数据报。&lt;br&gt;这与面向字符流的协议不同，如TCP，应用程序产生的
+      &lt;h1 id=&quot;数据&quot;&gt;&lt;a href=&quot;#数据&quot; class=&quot;headerlink&quot; title=&quot;数据&quot;&gt;&lt;/a&gt;数据&lt;/h1&gt;&lt;p&gt;Ethernet frame: 46-1500B&lt;/p&gt;
+&lt;h1 id=&quot;UDP&quot;&gt;&lt;a href=&quot;#UDP&quot; class=&quot;header
     
     </summary>
     
@@ -872,8 +878,8 @@
     <title>scala基本学习</title>
     <link href="http://yoursite.com/2017/06/28/scala_base/"/>
     <id>http://yoursite.com/2017/06/28/scala_base/</id>
-    <published>2017-06-28T06:08:33.211Z</published>
-    <updated>2017-06-28T06:08:33.211Z</updated>
+    <published>2017-06-28T01:00:00.000Z</published>
+    <updated>2017-09-12T12:42:53.167Z</updated>
     
     <content type="html"><![CDATA[<h1 id="零碎知识"><a href="#零碎知识" class="headerlink" title="零碎知识"></a>零碎知识</h1><h3 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h3><p>类名第一个字母要大写，方法名第一个字母要小写。</p>
 <h3 id="定义包"><a href="#定义包" class="headerlink" title="定义包"></a>定义包</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//法一</span></div><div class="line"><span class="keyword">package</span> com.reach</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span></span></div><div class="line"></div><div class="line"><span class="comment">//法二</span></div><div class="line"><span class="keyword">package</span> com.reach &#123;</div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span></span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -923,11 +929,39 @@
   </entry>
   
   <entry>
+    <title>python小知识</title>
+    <link href="http://yoursite.com/2017/06/22/python_tips/"/>
+    <id>http://yoursite.com/2017/06/22/python_tips/</id>
+    <published>2017-06-22T01:00:00.000Z</published>
+    <updated>2017-08-27T08:39:58.332Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="魔法方法"><a href="#魔法方法" class="headerlink" title="魔法方法"></a>魔法方法</h1><h2 id="构造和析构函数"><a href="#构造和析构函数" class="headerlink" title="构造和析构函数"></a>构造和析构函数</h2><p>__new__是构造函数，在__init__函数之前调用，只使用参数cls，其余参数传给__init__。</p>
+<p>__del__是析构函数，并不是语句del x的实现。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileObject</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, filepath)</span>:</span></div><div class="line">        self.file = open(filepath, <span class="string">'r'</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></div><div class="line">        self.file.close()</div><div class="line">        <span class="keyword">del</span> self.file</div></pre></td></tr></table></figure>
+<h2 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h2><p>__getattr__ 当用户试图访问不存在的属性时，会被调用。<br>__setattr__ 当用户试图设置属性时，不管改属性是否存在，会被调用。<br>__delattr__ 当用户试图删除属性时，不管改属性是否存在，会被调用。</p>
+<h2 id="自定义序列"><a href="#自定义序列" class="headerlink" title="自定义序列"></a>自定义序列</h2><ol>
+<li>不可变容器<br>需要实现 __len__ 和__getitem__ 方法。</li>
+<li>可变容器<br>除了1，还要实现 __setitem__ 和 __delitem__ 方法。</li>
+</ol>
+<p>为了使容器支持迭代，还需要实现__iter__接口。</p>
+<h2 id="上下文管理器"><a href="#上下文管理器" class="headerlink" title="上下文管理器"></a>上下文管理器</h2><p>with .. as xx: 做清理时使用，<br>需要定义 __enter__(self) 和 __exit__(self, exception_type, exception_value, traceback)。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;魔法方法&quot;&gt;&lt;a href=&quot;#魔法方法&quot; class=&quot;headerlink&quot; title=&quot;魔法方法&quot;&gt;&lt;/a&gt;魔法方法&lt;/h1&gt;&lt;h2 id=&quot;构造和析构函数&quot;&gt;&lt;a href=&quot;#构造和析构函数&quot; class=&quot;headerlink&quot; title=&quot;构造和
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>python 类、属性和方法</title>
     <link href="http://yoursite.com/2017/06/22/python_type_object/"/>
     <id>http://yoursite.com/2017/06/22/python_type_object/</id>
-    <published>2017-06-22T04:55:46.228Z</published>
-    <updated>2017-06-22T04:45:26.415Z</updated>
+    <published>2017-06-22T01:00:00.000Z</published>
+    <updated>2017-09-12T12:42:30.271Z</updated>
     
     <content type="html"><![CDATA[<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>调用基类的方法时，需要加上基类的类名，并且带上self参数。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span> </div><div class="line">        <span class="keyword">print</span> <span class="string">'Parent'</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span> </div><div class="line">        <span class="keyword">print</span> <span class="string">'Child'</span> </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parent_foo</span><span class="params">(self)</span>:</span> </div><div class="line">        Parent.foo(self)</div></pre></td></tr></table></figure></p>
 <h3 id="Super"><a href="#Super" class="headerlink" title="Super"></a>Super</h3><p>Super是一个类，Super(cls, obj)是根据类和其对象返回一个对象，可以通过Super来调用父类属性<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Child</span><span class="params">(Parent)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">(self)</span>:</span></div><div class="line">        Super(Child, self).foo()</div><div class="line">        <span class="comment">#do other things</span></div><div class="line">        <span class="keyword">pass</span></div></pre></td></tr></table></figure></p>
@@ -1048,34 +1082,6 @@
     <summary type="html">
     
       &lt;h2 id=&quot;继承&quot;&gt;&lt;a href=&quot;#继承&quot; class=&quot;headerlink&quot; title=&quot;继承&quot;&gt;&lt;/a&gt;继承&lt;/h2&gt;&lt;p&gt;调用基类的方法时，需要加上基类的类名，并且带上self参数。&lt;br&gt;&lt;figure class=&quot;highlight python&quot;&gt;&lt;ta
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>python小知识</title>
-    <link href="http://yoursite.com/2017/06/22/python_tips/"/>
-    <id>http://yoursite.com/2017/06/22/python_tips/</id>
-    <published>2017-06-22T01:00:00.000Z</published>
-    <updated>2017-08-27T08:39:58.332Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="魔法方法"><a href="#魔法方法" class="headerlink" title="魔法方法"></a>魔法方法</h1><h2 id="构造和析构函数"><a href="#构造和析构函数" class="headerlink" title="构造和析构函数"></a>构造和析构函数</h2><p>__new__是构造函数，在__init__函数之前调用，只使用参数cls，其余参数传给__init__。</p>
-<p>__del__是析构函数，并不是语句del x的实现。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileObject</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, filepath)</span>:</span></div><div class="line">        self.file = open(filepath, <span class="string">'r'</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__del__</span><span class="params">(self)</span>:</span></div><div class="line">        self.file.close()</div><div class="line">        <span class="keyword">del</span> self.file</div></pre></td></tr></table></figure>
-<h2 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h2><p>__getattr__ 当用户试图访问不存在的属性时，会被调用。<br>__setattr__ 当用户试图设置属性时，不管改属性是否存在，会被调用。<br>__delattr__ 当用户试图删除属性时，不管改属性是否存在，会被调用。</p>
-<h2 id="自定义序列"><a href="#自定义序列" class="headerlink" title="自定义序列"></a>自定义序列</h2><ol>
-<li>不可变容器<br>需要实现 __len__ 和__getitem__ 方法。</li>
-<li>可变容器<br>除了1，还要实现 __setitem__ 和 __delitem__ 方法。</li>
-</ol>
-<p>为了使容器支持迭代，还需要实现__iter__接口。</p>
-<h2 id="上下文管理器"><a href="#上下文管理器" class="headerlink" title="上下文管理器"></a>上下文管理器</h2><p>with .. as xx: 做清理时使用，<br>需要定义 __enter__(self) 和 __exit__(self, exception_type, exception_value, traceback)。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;魔法方法&quot;&gt;&lt;a href=&quot;#魔法方法&quot; class=&quot;headerlink&quot; title=&quot;魔法方法&quot;&gt;&lt;/a&gt;魔法方法&lt;/h1&gt;&lt;h2 id=&quot;构造和析构函数&quot;&gt;&lt;a href=&quot;#构造和析构函数&quot; class=&quot;headerlink&quot; title=&quot;构造和
     
     </summary>
     
